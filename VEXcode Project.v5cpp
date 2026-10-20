@@ -1,1 +1,263 @@
-{"mode":"Text","hardwareTarget":"brain","textContent":"#pragma region VEXcode Generated Robot Configuration\n// Make sure all required headers are included.\n#include <stdio.h>\n#include <stdlib.h>\n#include <stdbool.h>\n#include <math.h>\n#include <string.h>\n\n\n#include \"vex.h\"\n\nusing namespace vex;\n\n// Brain should be defined by default\nbrain Brain;\n\n\n// START V5 MACROS\n#define waitUntil(condition)                                                   \\\n  do {                                                                         \\\n    wait(5, msec);                                                             \\\n  } while (!(condition))\n\n#define repeat(iterations)                                                     \\\n  for (int iterator = 0; iterator < iterations; iterator++)\n// END V5 MACROS\n\n\n// Robot configuration code.\nmotor leftMotorA = motor(PORT2, ratio18_1, false);\nmotor leftMotorB = motor(PORT3, ratio18_1, false);\nmotor_group LeftDriveSmart = motor_group(leftMotorA, leftMotorB);\nmotor rightMotorA = motor(PORT6, ratio18_1, true);\nmotor rightMotorB = motor(PORT7, ratio18_1, true);\nmotor_group RightDriveSmart = motor_group(rightMotorA, rightMotorB);\ndrivetrain Drivetrain = drivetrain(LeftDriveSmart, RightDriveSmart, 319.19, 295, 40, mm, 1);\n\n\n\n// generating and setting random seed\nvoid initializeRandomSeed(){\n  int systemTime = Brain.Timer.systemHighResolution();\n  double batteryCurrent = Brain.Battery.current();\n  double batteryVoltage = Brain.Battery.voltage(voltageUnits::mV);\n\n  // Combine these values into a single integer\n  int seed = int(batteryVoltage + batteryCurrent * 100) + systemTime;\n\n  // Set the seed\n  srand(seed);\n}\n\n\n\nvoid vexcodeInit() {\n\n  //Initializing random seed.\n  initializeRandomSeed(); \n}\n\n\n// Helper to make playing sounds from the V5 in VEXcode easier and\n// keeps the code cleaner by making it clear what is happening.\nvoid playVexcodeSound(const char *soundName) {\n  printf(\"VEXPlaySound:%s\\n\", soundName);\n  wait(5, msec);\n}\n\n#pragma endregion VEXcode Generated Robot Configuration\n\n/*----------------------------------------------------------------------------*/\n/*                                                                            */\n/*    Module:       main.cpp                                                  */\n/*    Author:       {author}                                                  */\n/*    Created:      {date}                                                    */\n/*    Description:  V5 project                                                */\n/*                                                                            */\n/*----------------------------------------------------------------------------*/\n\n// Include the V5 Library\n#include \"vex.h\"\n  \n// Allows for easier use of the VEX Library\nusing namespace vex;\n\ndouble currentX = 70.6; \ndouble currentY = 8; //16 start //19 after\ndouble currentD = 0;\ndouble tempCurrentD=0;\n\n\nvoid move(double x){\n  Drivetrain.driveFor(forward, 200, inches,true);\n}\nvoid move(double x, int y){\n  Drivetrain.driveFor(forward, 200, inches,false);\n}\n\nvoid trn(double x){\n  Drivetrain.turnFor(left, x,degrees,true);\n}\n\nvoid trn(double x,int y){\n  Drivetrain.turnFor(left, x,degrees,false);\n}\n\nvoid turnTo(double x){\n  double degree = currentD - x;\n  if(fabs(degree)-180>0){\n    if(degree < 0){\n      degree+=180;\n    }\n    else {\n      degree-=180;\n    }\n  }\n  trn(degree);\n}\n\nvoid turnTo(double x,int y){\n  double degree = currentD - x;\n  if(fabs(degree)-180>0){\n    if(degree < 0){\n      degree+=180;\n    }\n    else {\n      degree-=180;\n    }\n  }\n  trn(degree);\n}\n\n\nvoid cordMove(double x, double y){\n  //solve c and distance of movement\n  double a = fabs(currentX-x);\n  double b = fabs(currentY-y);\n  double c = sqrt(a * a + b * b);\n\n  double degree = acos((b*b-a*a-c*c)/(-2*a*c));\n\n  //find the quandrient and direction where it needs to go\n  if(currentX-x > 0){\n    if(currentY-y > 0){\n      degree += 0;\n    }\n    degree += 270;\n  }\n  if(currentX-x < 0){\n    if(currentY-y > 0){\n      degree += 0;\n    }\n    else{\n      degree += 270;\n    }\n  }\n  else{\n    if(currentY-y > 0){\n      degree+=180;\n    }\n    else{\n      degree += 90;\n    }\n    \n  }\n  \n  //find the fastest way to get there and set move\n  if(fabs(currentD-degree) <= 180){\n    if(currentD-degree < 0){\n      degree = degree-currentD+180;\n    }\n    else {\n       degree = degree+180;\n    }\n  }\n  else {\n    degree = currentD - degree; \n  }\n  trn(degree);\n  move(c);\n}\n\nvoid cordMove(double x, double y,int z){//move backwards\n  //solve c and distance of movement\n  double a = fabs(currentX-x);\n  double b = fabs(currentY-y);\n  double c = sqrt(a * a + b * b);\n\n  double degree = acos((b*b-a*a-c*c)/(-2*a*c));\n\n  //find the quandrient and direction where it needs to go\n  if(currentX-x > 0){\n    if(currentY-y > 0){\n      degree += 0;\n    }\n    degree += 270;\n  }\n  if(currentX-x < 0){\n    if(currentY-y > 0){\n      degree += 0;\n    }\n    else{\n      degree += 270;\n    }\n  }\n  else{\n    if(currentY-y > 0){\n      degree+=180;\n    }\n    else{\n      degree += 90;\n    }\n    \n  }\n  \n  //find the fastest way to get there and set move\n  /*if(fabs(currentD-degree) <= 180){\n    if(currentD-degree < 0){\n      degree = degree-180;\n    }\n    else {\n       degree = degree+180;\n    }\n  }\n  else {\n    degree = currentD - degree; \n  }*/\n  tempCurrentD=degree;\n  if(fabs(degree)-180>0){\n    if(degree < 0){\n      degree+=180;\n    }\n    else {\n      degree-=180;\n    }\n  }\n\n  currentD = tempCurrentD;\n  trn(-1*degree);\n  move(-1*c);\n}\n\nvoid calcX(){\n  9.5sin()\n}\n\nvoid calcY(){\n  9.5cos();\n}\n\nint main() {\n  // Initializing Robot Configuration. DO NOT REMOVE!\n  vexcodeInit();\n  // Begin project code\n  cordMove(72,16,0);\n  cordMove(72,9.6);\n  cordMove(72,16,0);\n  cordMove(72,9.6);\n  cordMove(72,16,0);\n  //cordMove(20.5)\n  //44\n  //20.25\n}\n","textLanguage":"cpp","robotConfig":[{"port":[2,3,6,7,null],"name":"Drivetrain","customName":false,"deviceType":"Drivetrain","deviceClass":"smartdrive","setting":{"type":"4-motor","wheelSize":"wheel4in","gear":"ratio18_1","gearRatio":"1:1","direction":"fwd","gyroType":"none","width":"295","unit":"mm","wheelbase":"40","wheelbaseUnit":"mm","xOffset":"0","xOffsetUnit":"mm","yOffset":"0","yOffsetUnit":"mm","thetaOffset":"180"},"triportSourcePort":null}],"slot":0,"platform":"V5","sdkVersion":"20240802.15.00.00","appVersion":"4.68.0","fileFormat":"2.0.0","targetBrainGen":"First","v5Sounds":[{"name":"game over","url":"static/sounds/mixkit-arcade-retro-game-over-213.wav"}],"v5SoundsEnabled":false,"aiVisionSettings":{"colors":[],"codes":[],"tags":true,"AIObjects":true,"AIObjectModel":[],"aiModelDropDownValue":null}}
+#pragma region VEXcode Generated Robot Configuration
+// Make sure all required headers are included.
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <math.h>
+#include <string.h>
+
+
+#include "vex.h"
+
+using namespace vex;
+
+// Brain should be defined by default
+brain Brain;
+
+
+// START V5 MACROS
+#define waitUntil(condition)                                                   \
+  do {                                                                         \
+    wait(5, msec);                                                             \
+  } while (!(condition))
+
+#define repeat(iterations)                                                     \
+  for (int iterator = 0; iterator < iterations; iterator++)
+// END V5 MACROS
+
+
+// Robot configuration code.
+motor leftMotorA = motor(PORT2, ratio18_1, false);
+motor leftMotorB = motor(PORT3, ratio18_1, false);
+motor_group LeftDriveSmart = motor_group(leftMotorA, leftMotorB);
+motor rightMotorA = motor(PORT6, ratio18_1, true);
+motor rightMotorB = motor(PORT7, ratio18_1, true);
+motor_group RightDriveSmart = motor_group(rightMotorA, rightMotorB);
+drivetrain Drivetrain = drivetrain(LeftDriveSmart, RightDriveSmart, 319.19, 295, 40, mm, 1);
+
+
+
+// generating and setting random seed
+void initializeRandomSeed(){
+  int systemTime = Brain.Timer.systemHighResolution();
+  double batteryCurrent = Brain.Battery.current();
+  double batteryVoltage = Brain.Battery.voltage(voltageUnits::mV);
+
+  // Combine these values into a single integer
+  int seed = int(batteryVoltage + batteryCurrent * 100) + systemTime;
+
+  // Set the seed
+  srand(seed);
+}
+
+
+
+void vexcodeInit() {
+
+  //Initializing random seed.
+  initializeRandomSeed(); 
+}
+
+
+// Helper to make playing sounds from the V5 in VEXcode easier and
+// keeps the code cleaner by making it clear what is happening.
+void playVexcodeSound(const char *soundName) {
+  printf("VEXPlaySound:%s\n", soundName);
+  wait(5, msec);
+}
+
+#pragma endregion VEXcode Generated Robot Configuration
+
+/*----------------------------------------------------------------------------*/
+/*                                                                            */
+/*    Module:       main.cpp                                                  */
+/*    Author:       {author}                                                  */
+/*    Created:      {date}                                                    */
+/*    Description:  V5 project                                                */
+/*                                                                            */
+/*----------------------------------------------------------------------------*/
+
+// Include the V5 Library
+#include "vex.h"
+  
+// Allows for easier use of the VEX Library
+using namespace vex;
+
+double currentX = 70.6; 
+double currentY = 8; //16 start //19 after
+double currentD = 0;
+double tempCurrentD=0;
+
+
+void move(double x){
+  Drivetrain.driveFor(forward, 200, inches,true);
+}
+void move(double x, int y){
+  Drivetrain.driveFor(forward, 200, inches,false);
+}
+
+void trn(double x){
+  Drivetrain.turnFor(left, x,degrees,true);
+}
+
+void trn(double x,int y){
+  Drivetrain.turnFor(left, x,degrees,false);
+}
+
+void turnTo(double x){
+  double degree = currentD - x;
+  if(fabs(degree)-180>0){
+    if(degree < 0){
+      degree+=180;
+    }
+    else {
+      degree-=180;
+    }
+  }
+  trn(degree);
+}
+
+void turnTo(double x,int y){
+  double degree = currentD - x;
+  if(fabs(degree)-180>0){
+    if(degree < 0){
+      degree+=180;
+    }
+    else {
+      degree-=180;
+    }
+  }
+  trn(degree);
+}
+
+
+void cordMove(double x, double y){
+  //solve c and distance of movement
+  double a = fabs(currentX-x);
+  double b = fabs(currentY-y);
+  double c = sqrt(a * a + b * b);
+
+  double degree = acos((b*b-a*a-c*c)/(-2*a*c));
+
+  //find the quandrient and direction where it needs to go
+  if(currentX-x > 0){
+    if(currentY-y > 0){
+      degree += 0;
+    }
+    degree += 270;
+  }
+  if(currentX-x < 0){
+    if(currentY-y > 0){
+      degree += 0;
+    }
+    else{
+      degree += 270;
+    }
+  }
+  else{
+    if(currentY-y > 0){
+      degree+=180;
+    }
+    else{
+      degree += 90;
+    }
+    
+  }
+  
+  //find the fastest way to get there and set move
+  if(fabs(currentD-degree) <= 180){
+    if(currentD-degree < 0){
+      degree = degree-currentD+180;
+    }
+    else {
+       degree = degree+180;
+    }
+  }
+  else {
+    degree = currentD - degree; 
+  }
+  trn(degree);
+  move(c);
+}
+
+void cordMove(double x, double y,int z){//move backwards
+  //solve c and distance of movement
+  double a = fabs(currentX-x);
+  double b = fabs(currentY-y);
+  double c = sqrt(a * a + b * b);
+
+  double degree = acos((b*b-a*a-c*c)/(-2*a*c));
+
+  //find the quandrient and direction where it needs to go
+  if(currentX-x > 0){
+    if(currentY-y > 0){
+      degree += 0;
+    }
+    degree += 270;
+  }
+  if(currentX-x < 0){
+    if(currentY-y > 0){
+      degree += 0;
+    }
+    else{
+      degree += 270;
+    }
+  }
+  else{
+    if(currentY-y > 0){
+      degree+=180;
+    }
+    else{
+      degree += 90;
+    }
+    
+  }
+  
+  //find the fastest way to get there and set move
+  /*if(fabs(currentD-degree) <= 180){
+    if(currentD-degree < 0){
+      degree = degree-180;
+    }
+    else {
+       degree = degree+180;
+    }
+  }
+  else {
+    degree = currentD - degree; 
+  }*/
+  tempCurrentD=degree;
+  if(fabs(degree)-180>0){
+    if(degree < 0){
+      degree+=180;
+    }
+    else {
+      degree-=180;
+    }
+  }
+
+  currentD = tempCurrentD;
+  trn(-1*degree);
+  move(-1*c);
+}
+
+void calcX(){
+  9.5sin()
+}
+
+void calcY(){
+  9.5cos();
+}
+
+int main() {
+  // Initializing Robot Configuration. DO NOT REMOVE!
+  vexcodeInit();
+  // Begin project code
+  cordMove(72,16,0);
+  cordMove(72,9.6);
+  cordMove(72,16,0);
+  cordMove(72,9.6);
+  cordMove(72,16,0);
+  //cordMove(20.5)
+  //44
+  //20.25
+}
