@@ -71,9 +71,9 @@ void playVexcodeSound(const char *soundName) {
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /*    Module:       main.cpp                                                  */
-/*    Author:       {author}                                                  */
-/*    Created:      {date}                                                    */
-/*    Description:  V5 project                                                */
+/*    Author:       {Allen Liu}                                               */
+/*    Created:      {10/19/26}                                                */
+/*    Description:  Read ReadMe                                               */
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
 
@@ -88,6 +88,13 @@ double currentY = 8; //16 start //19 after
 double currentD = 0;
 double tempCurrentD=0;
 
+double calcX(double degree){
+  return 9.5*sin(degree);
+}
+ 
+double calcY(double degree){
+  return 9.5*cos(degree);
+}
 
 void move(double x){
   Drivetrain.driveFor(forward, 200, inches,true);
@@ -138,6 +145,11 @@ void cordMove(double x, double y){
   double c = sqrt(a * a + b * b);
 
   double degree = acos((b*b-a*a-c*c)/(-2*a*c));
+
+  //recalculate x and y based on where the middle of the robot is
+  a = fabs(currentX-(x-calcX(degree)));
+  b = fabs(currentY-(y-calcY(degree)));
+  c = sqrt(a * a + b * b);
 
   //find the quandrient and direction where it needs to go
   if(currentX-x > 0){
@@ -213,18 +225,6 @@ void cordMove(double x, double y,int z){//move backwards
     
   }
   
-  //find the fastest way to get there and set move
-  /*if(fabs(currentD-degree) <= 180){
-    if(currentD-degree < 0){
-      degree = degree-180;
-    }
-    else {
-       degree = degree+180;
-    }
-  }
-  else {
-    degree = currentD - degree; 
-  }*/
   tempCurrentD=degree;
   if(fabs(degree)-180>0){
     if(degree < 0){
@@ -240,23 +240,20 @@ void cordMove(double x, double y,int z){//move backwards
   move(-1*c);
 }
 
-void calcX(){
-  9.5sin()
-}
 
-void calcY(){
-  9.5cos();
-}
 
 int main() {
   // Initializing Robot Configuration. DO NOT REMOVE!
   vexcodeInit();
   // Begin project code
+  //flip the switch twice
   cordMove(72,16,0);
   cordMove(72,9.6);
   cordMove(72,16,0);
   cordMove(72,9.6);
   cordMove(72,16,0);
+
+
   //cordMove(20.5)
   //44
   //20.25
