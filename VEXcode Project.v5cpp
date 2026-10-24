@@ -198,6 +198,9 @@ void cordMove(double x, double y){
   else {
     degree = currentD - degree; 
   }
+  currentD = degree;
+  currentY = b;
+  currentX = a;
   trn(degree);
   move(c);
 }
@@ -250,6 +253,9 @@ void cordMove(double x, double y,int z){
   else {
     degree = currentD - degree; 
   }
+  currentD = degree*-1;
+  currentY = b;
+  currentX = a;
   trn(degree*-1);
   move(c*-1);
 }
@@ -308,7 +314,9 @@ int main() {
   ChainNextCup(); 
   cordMove(48,24);
   claw.set(false);
+
   //gather two cups
+
   //gather pin one
   ChainBottom(1);
   cordMove(54,24,0);
@@ -321,12 +329,90 @@ int main() {
   ChainNextCup();
   claw.set(false);
 
+  //gather pin two
+  ChainBottom(1);
+  cordMove(24,24);
+  claw.set(true);
+  ChainReturn(1);
+  cordMove(48,24);
+  ChainNextCup();
+  claw.set(false);
+  ChainBottom(1);
 
   
+  //gather pin from loader
+  for(int x = 0; x > 6; x++){
+    intakeStart();
+    cordMove(0,12);
+    claw.set(true);
+    intakeStop();
+    ChainReturn(1);
+    cordMove(48,24);
+    ChainNextCup();
+    claw.set(false);
+    ChainBottom();
+  }
+
+  cordMove(12,48);
+  intakeStart();
+  cordMove(0,48);
+  claw.set(true);
+  intakeStop();
+  cordMove(24,48);
+  chainHeigth = 0;
+  ChainNextCup();
+  claw.set(false);
 
 
+  //second gather pin from loader
+  for(int x = 0; x > 7; x++){
+    intakeStart();
+    cordMove(0,12);
+    claw.set(true);
+    intakeStop();
+    ChainReturn(1);
+    cordMove(24,48);
+    ChainNextCup();
+    claw.set(false);
+    ChainBottom();
+  }
 
-  //cordMove(20.5)
-  //44
-  //20.25
+  //flip second switch twice
+  cordMove(24,72);
+  cordMove(0,72);
+  cordMove(12,72);
+  cordMove(0,72);
+
+  //gather middle cone
+  intakeStart();
+  cordMove(72,48);
+  claw.set(true);
+  intakeStop();
+  chainHeigth = 0;
+  ChainNextCup(1);
+  cordMove(72,72);
+  claw.set(false);
+  ChainBottom();
+
+  //gather the other two yellow cone in the middle
+  cordMove(96,72);
+  intakeStart();
+  cordMove(96,96);
+  claw.set(true);
+  intakeStop();
+  ChainReturn();
+  cordMove(72,72);
+  ChainNextCup();
+  claw.set(false);
+
+  ChainBottom(1);
+  intakeStart();
+  cordMove(120,120);
+  claw.set(true);
+  intakeStop();
+  ChainReturn(1);
+  cordMove(72,72);
+  ChainNextCup();
+  claw.set(false); 
+  //we done :) :) :) :)
 }
