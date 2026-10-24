@@ -33,11 +33,11 @@ motor_group LeftDriveSmart = motor_group(leftMotorA, leftMotorB);
 motor rightMotorA = motor(PORT6, ratio18_1, true);
 motor rightMotorB = motor(PORT7, ratio18_1, true);
 motor_group RightDriveSmart = motor_group(rightMotorA, rightMotorB);
-drivetrain Drivetrain = drivetrain(LeftDriveSmart, RightDriveSmart, 319.19, 295, 40, mm, 1);
+drivetrain Drivetrain = drivetrain(LeftDriveSmart, RightDriveSmart, 319.19, 294.89399999999995, 39.878, mm, 1);
 
-motor chainMotorA = motor(PORT19, ratio18_1, false);
-motor chainMotorB = motor(PORT20, ratio18_1, true);
-motor_group chain = motor_group(chainMotorA, chainMotorB);
+motor ChainMotorA = motor(PORT19, ratio18_1, false);
+motor ChainMotorB = motor(PORT20, ratio18_1, true);
+motor_group Chain = motor_group(ChainMotorA, ChainMotorB);
 
 motor Intake = motor(PORT10, ratio36_1, false);
 
@@ -257,15 +257,44 @@ void cordMove(double x, double y,int z){
 void intakeStart(){
   Intake.spin(forward);
 }
-
+ 
 void intakeStop(){
   Intake.stop();
 }
 
+int chainHeigth = 0;
+int chainCurrent = 0;
+void ChainNextCup(){
+  chainHeigth+=1;
+  Chain.spinFor(forward,1,turns);
+} 
+
+void ChainReturn(){
+  Chain.spinFor(forward,chainHeigth,turns);
+} 
+
+void ChainBottom(){
+  Chain.spinFor(reverse,chainHeigth,turns);
+} 
+
+void ChainNextCup(int x){
+  chainHeigth+=1;
+  Chain.spinFor(forward,1,turns,false);
+} 
+
+void ChainReturn(int x){
+  Chain.spinFor(forward,chainHeigth,turns,false);
+} 
+
+void ChainBottom(int x){
+  Chain.spinFor(reverse,chainHeigth,turns,false);
+} 
+
+
 
 
 int main() {
-  // Initializing Robot Configuration. DO NOT REMOVE!
+  // Initializing Robot Configuration. DO NOT REMOVE! 
   vexcodeInit();
   // Begin project code
   //flip the switch twice
@@ -275,7 +304,26 @@ int main() {
   cordMove(72,9.6);
   cordMove(72,16,0);
 
-  //move to the input a pin 
+  //move to the input a pin
+  ChainNextCup(); 
+  cordMove(48,24);
+  claw.set(false);
+  //gather two cups
+  //gather pin one
+  ChainBottom(1);
+  cordMove(54,24,0);
+  intakeStart();
+  cordMove(48,48);
+  claw.set(true);
+  ChainReturn(1);
+  cordMove(48,24);
+  intakeStop();
+  ChainNextCup();
+  claw.set(false);
+
+
+  
+
 
 
   //cordMove(20.5)
