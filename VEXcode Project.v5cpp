@@ -35,6 +35,13 @@ motor rightMotorB = motor(PORT7, ratio18_1, true);
 motor_group RightDriveSmart = motor_group(rightMotorA, rightMotorB);
 drivetrain Drivetrain = drivetrain(LeftDriveSmart, RightDriveSmart, 319.19, 295, 40, mm, 1);
 
+motor chainMotorA = motor(PORT19, ratio18_1, false);
+motor chainMotorB = motor(PORT20, ratio18_1, true);
+motor_group chain = motor_group(chainMotorA, chainMotorB);
+
+motor Intake = motor(PORT10, ratio36_1, false);
+
+digital_out claw = digital_out(Brain.ThreeWirePort.A);
 
 
 // generating and setting random seed
@@ -89,11 +96,16 @@ double currentD = 0;
 double tempCurrentD=0;
 
 double calcX(double degree){
-  return 9.5*sin(degree);
+  degree = 9.5*sin(degree);
+  degree *= 180;
+  return degree / M_PI;
+
 }
  
 double calcY(double degree){
-  return 9.5*cos(degree);
+  degree =  9.5*cos(degree);
+  degree *= 180;
+  return degree / M_PI;
 }
 
 void move(double x){
@@ -146,35 +158,33 @@ void cordMove(double x, double y){
 
   double degree = acos((b*b-a*a-c*c)/(-2*a*c));
 
-  //recalculate x and y based on where the middle of the robot is
-  a = fabs(currentX-(x-calcX(degree)));
-  b = fabs(currentY-(y-calcY(degree)));
-  c = sqrt(a * a + b * b);
-
   //find the quandrient and direction where it needs to go
   if(currentX-x > 0){
     if(currentY-y > 0){
-      degree += 0;
-    }
-    degree += 270;
-  }
-  if(currentX-x < 0){
-    if(currentY-y > 0){
+      a += calcX(degree);
+      b += calcY(degree);
       degree += 0;
     }
     else{
+      a += calcX(degree);
+      b -= calcY(degree);
       degree += 270;
     }
+
   }
   else{
     if(currentY-y > 0){
+      a -= calcX(degree);
+      b += calcY(degree);
       degree+=180;
     }
     else{
+      a -= calcX(degree);
+      b -= calcY(degree);
       degree += 90;
     }
-    
   }
+  c = sqrt(a * a + b * b); 
   
   //find the fastest way to get there and set move
   if(fabs(currentD-degree) <= 180){
@@ -192,7 +202,7 @@ void cordMove(double x, double y){
   move(c);
 }
 
-void cordMove(double x, double y,int z){//move backwards
+void cordMove(double x, double y,int z){
   //solve c and distance of movement
   double a = fabs(currentX-x);
   double b = fabs(currentY-y);
@@ -203,41 +213,53 @@ void cordMove(double x, double y,int z){//move backwards
   //find the quandrient and direction where it needs to go
   if(currentX-x > 0){
     if(currentY-y > 0){
-      degree += 0;
-    }
-    degree += 270;
-  }
-  if(currentX-x < 0){
-    if(currentY-y > 0){
+      a += calcX(degree);
+      b += calcY(degree);
       degree += 0;
     }
     else{
+      a += calcX(degree);
+      b -= calcY(degree);
       degree += 270;
     }
+
   }
   else{
     if(currentY-y > 0){
+      a -= calcX(degree);
+      b += calcY(degree);
       degree+=180;
     }
     else{
+      a -= calcX(degree);
+      b -= calcY(degree);
       degree += 90;
     }
-    
   }
+  c = sqrt(a * a + b * b); 
   
-  tempCurrentD=degree;
-  if(fabs(degree)-180>0){
-    if(degree < 0){
-      degree+=180;
+  //find the fastest way to get there and set move
+  if(fabs(currentD-degree) <= 180){
+    if(currentD-degree < 0){
+      degree = degree-currentD+180;
     }
     else {
-      degree-=180;
+       degree = degree+180;
     }
   }
+  else {
+    degree = currentD - degree; 
+  }
+  trn(degree*-1);
+  move(c*-1);
+}
 
-  currentD = tempCurrentD;
-  trn(-1*degree);
-  move(-1*c);
+void intakeStart(){
+  Intake.spin(forward);
+}
+
+void intakeStop(){
+  Intake.stop();
 }
 
 
@@ -252,6 +274,8 @@ int main() {
   cordMove(72,16,0);
   cordMove(72,9.6);
   cordMove(72,16,0);
+
+  //move to the input a pin 
 
 
   //cordMove(20.5)
