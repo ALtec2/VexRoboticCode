@@ -9,10 +9,8 @@ However if you do have a robot or a vexv5 brain and you want to test it heres ho
 4.use Ctrl + O 
 5.Input the code
 6.Then with your usb type c plug into your brain and other end to your computer
-7.Connect wires and motors/sensors to the given port
-tk(List ports later)
 8.Click run to see it working
 
 However if you want to see it run and since I can't show the robot there will also be a unlisted yt video here for your viewing pleasures!!!(It'll be me clicking run and the motors spinning)
-tk(Add unlisted yt video)
+(https://www.youtube.com/shorts/ox4oTNDR2g0?feature=share)
 This is to show that there isn't any bugs in the code
