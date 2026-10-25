@@ -117,19 +117,15 @@ double calcY(double degree){
 }
 
 //move the robot and pause code until it is done
-void move(double x,double seconds){
+void move(double x){
   Drivetrain.driveFor(forward, x, inches,true);
-  while(seconds != 0|| Drivetrain.isMoving()){
-    wait(1, second);
-    seconds--; 
-  }
 }
 
 void trn(double x){
   Drivetrain.turnFor(left, x,degrees,false);
 } 
 
-void turnTo(double x,double seconds){
+void turnTo(double x,double ms){
   double degree = currentD - x;
   if(fabs(degree)-180>0){
     if(degree < 0){
@@ -140,13 +136,13 @@ void turnTo(double x,double seconds){
     } 
   }
   trn(degree);
-  while(seconds != 0|| Drivetrain.isMoving()){
-    wait(1, second);
-    seconds--; 
-  } 
+  while(ms != 0|| Drivetrain.isMoving()){
+    wait(1/1000, seconds);
+    ms--; 
+  }
 } 
-  
-public void cordDrive(double x, double y, double seconds, bool r){
+ 
+void cordMove(double x, double y, double ms, bool r){
   double a = currentX-x;
   double b = currentY-y;
   double c = sqrt(pow(fabs(a),2)+pow(fabs(b),2));
@@ -158,32 +154,32 @@ public void cordDrive(double x, double y, double seconds, bool r){
       //cord III
       a = a-calcX(d);
       b = b-calcY(d);
-      degree += 180;
+      d += 180;
     }
     else{
       a = a-calcX(d);
       b = b+calcY(d);
-      degree += 90;
+      d += 90;
     }
   }
   else{
     //either cord I or IV
     if(b<0){
       //cord IV
-      a = a + calcX();
-      b = b - calcY();
-      degree+=270
+      a = a + calcX(d);
+      b = b - calcY(d);
+      d+=270;
     }
     else{
-      a = a + calcX();
-      b = b - calcY();
+      a = a + calcX(d);
+      b = b - calcY(d);
     }
   }
   if(d-currentD>180){
-    degree = degree-currentD-180;
+    d = d-currentD-180;
   }
   else{
-    degree -= currentD;
+    d -= currentD;
   }
   currentD = d;
   currentX = a;
@@ -192,17 +188,17 @@ public void cordDrive(double x, double y, double seconds, bool r){
 
   if(r){
     trn(d*-1);
-    currentD() = d * -1;
+    currentD = d * -1;
     move(c*-1);
   }
   else{
-    trn(d,0);
-    move(c,0);
+    trn(d);
+    move(c);
   }
   
-  while(seconds != 0|| Drivetrain.isMoving()){
-    wait(1, second);
-    seconds--; 
+  while(ms != 0|| Drivetrain.isMoving()){
+    wait(1/1000, seconds);
+    ms--; 
   }
 } 
 
@@ -244,22 +240,22 @@ void ChainBottom(int x){
 
 void AtonOption1(){
   //flip the switch twice
-  cordMove(72,16,2,true);
+  cordMove(72,16,2000,true);
   cordMove(72,9.6,0,false);
-  cordMove(72,16,2,true);
+  cordMove(72,16,2000,true);
   cordMove(72,9.6,0,false);
-  cordMove(72,16,2,true);
+  cordMove(72,16,2000,true);
 
   ChainNextCup(); 
-  cordMove(48,24,2,true);
+  cordMove(48,24,2000,true);
   claw.set(false);
 
   intakeStart();
-  cordMove(0,12,2,false);
+  cordMove(0,12,2000,false);
   claw.set(true);
   intakeStop();
   ChainReturn(1);
-  cordMove(48,24,2,false); 
+  cordMove(48,24,2000,false); 
   ChainNextCup();
   claw.set(false);
   ChainBottom();
@@ -270,28 +266,28 @@ void AtonOption2(){
   //flip spinners
   Drivetrain.setDriveVelocity(100,percent);
   claw.set(true);
-  cordMove(72,16,2,true);
-  cordMove(72,0,2,false);
-  cordMove(72,16,2,true);
+  cordMove(72,16,2000,true);
+  cordMove(72,0,2000,false);
+  cordMove(72,16,2000,true);
 
   //input help cup 
   ChainNextCup(1);
-  cordMove(48,24,2,true);
+  cordMove(48,24,2000,true);
   claw.set(false);
   ChainBottom(1);
   
   //input side yellow cup 
   intakeStart();
-  cordMove(48,0,2,false);
+  cordMove(48,0,2000,false);
   claw.set(true);
   ChainReturn(1);
-  cordMove(48,0,2,true);
+  cordMove(48,0,2000,true);
   ChainNextCup();
   claw.set(false);
   intakeStop();
  
   //move to better ending position
-  cordMove(24,12,2,false);
+  cordMove(24,12,2000,false);
   turnTo(180,0); 
 }  
  
@@ -351,3 +347,4 @@ int main() {
     }
   }
 }
+
