@@ -99,30 +99,24 @@ double calcX(double degree){
   degree = 9.5*sin(degree);
   degree *= 180;
   return degree / M_PI;
-
 }
- 
 double calcY(double degree){
   degree =  9.5*cos(degree);
   degree *= 180;
   return degree / M_PI;
 }
-
 void move(double x){
-  Drivetrain.driveFor(forward, 200, inches,true);
+  Drivetrain.driveFor(forward, x, inches,true);
 }
 void move(double x, int y){
-  Drivetrain.driveFor(forward, 200, inches,false);
+  Drivetrain.driveFor(forward, x, inches,false);
 }
-
 void trn(double x){
   Drivetrain.turnFor(left, x,degrees,true);
 }
-
 void trn(double x,int y){
   Drivetrain.turnFor(left, x,degrees,false);
 }
-
 void turnTo(double x){
   double degree = currentD - x;
   if(fabs(degree)-180>0){
@@ -135,7 +129,6 @@ void turnTo(double x){
   }
   trn(degree);
 }
-
 void turnTo(double x,int y){
   double degree = currentD - x;
   if(fabs(degree)-180>0){
@@ -149,125 +142,12 @@ void turnTo(double x,int y){
   trn(degree);
 }
 
-
-void cordMove(double x, double y){
-  //solve c and distance of movement
-  double a = fabs(currentX-x);
-  double b = fabs(currentY-y);
-  double c = sqrt(a * a + b * b);
-
-  double degree = acos((b*b-a*a-c*c)/(-2*a*c));
-
-  //find the quandrient and direction where it needs to go
-  if(currentX-x > 0){
-    if(currentY-y > 0){
-      a += calcX(degree);
-      b += calcY(degree);
-      degree += 0;
-    }
-    else{
-      a += calcX(degree);
-      b -= calcY(degree);
-      degree += 270;
-    }
-
-  }
-  else{
-    if(currentY-y > 0){
-      a -= calcX(degree);
-      b += calcY(degree);
-      degree+=180;
-    }
-    else{
-      a -= calcX(degree);
-      b -= calcY(degree);
-      degree += 90;
-    }
-  }
-  c = sqrt(a * a + b * b); 
-  
-  //find the fastest way to get there and set move
-  if(fabs(currentD-degree) <= 180){
-    if(currentD-degree < 0){
-      degree = degree-currentD+180;
-    }
-    else {
-       degree = degree+180;
-    }
-  }
-  else {
-    degree = currentD - degree; 
-  }
-  currentD = degree;
-  currentY = b;
-  currentX = a;
-  trn(degree);
-  move(c);
-}
-
-void cordMove(double x, double y,int z){
-  //solve c and distance of movement
-  double a = fabs(currentX-x);
-  double b = fabs(currentY-y);
-  double c = sqrt(a * a + b * b);
-
-  double degree = acos((b*b-a*a-c*c)/(-2*a*c));
-
-  //find the quandrient and direction where it needs to go
-  if(currentX-x > 0){
-    if(currentY-y > 0){
-      a += calcX(degree);
-      b += calcY(degree);
-      degree += 0;
-    }
-    else{
-      a += calcX(degree);
-      b -= calcY(degree);
-      degree += 270;
-    }
-
-  }
-  else{
-    if(currentY-y > 0){
-      a -= calcX(degree);
-      b += calcY(degree);
-      degree+=180;
-    }
-    else{
-      a -= calcX(degree);
-      b -= calcY(degree);
-      degree += 90;
-    }
-  }
-  c = sqrt(a * a + b * b); 
-  
-  //find the fastest way to get there and set move
-  if(fabs(currentD-degree) <= 180){
-    if(currentD-degree < 0){
-      degree = degree-currentD+180;
-    }
-    else {
-       degree = degree+180;
-    }
-  }
-  else {
-    degree = currentD - degree; 
-  }
-  currentD = degree*-1;
-  currentY = b;
-  currentX = a;
-  trn(degree*-1);
-  move(c*-1);
-}
-
 void intakeStart(){
   Intake.spin(forward);
 }
- 
 void intakeStop(){
   Intake.stop();
 }
-
 int chainHeigth = 0;
 int chainCurrent = 0;
 void ChainNextCup(){
@@ -286,55 +166,120 @@ void ChainBottom(){
 void ChainNextCup(int x){
   chainHeigth+=1;
   Chain.spinFor(forward,1,turns,false);
-} 
+}   
 
 void ChainReturn(int x){
   Chain.spinFor(forward,chainHeigth,turns,false);
-} 
+}        
 
-void ChainBottom(int x){
+void ChainBottom(int x,double seconds){
   Chain.spinFor(reverse,chainHeigth,turns,false);
+  while(seconds != 0|| Chain.isSpinning()){ 
+    wait(1, second);
+    seconds--; 
+  }
+}       
+//improved cord drive
+//this cord drive uses a diffrent cord system where the center is 0,0
+public void cordDrive(double x, double y, double seconds, bool r){
+  double a = currentX-x;
+  double b = currentY-y;
+  double c = sqrt(pow(fabs(a),2)+pow(fabs(b),2));
+  double d = atan(b/a);
+  d = fabs(d * 180 / M_PI);
+  if(a<0){
+    //either cord II or cord III
+    if(b<0){
+      //cord III
+      a = a-calcX(d);
+      b = b-calcY(d);
+      degree += 180;
+    }
+    else{
+      a = a-calcX(d);
+      b = b+calcY(d);
+      degree += 90;
+    }
+  }
+  else{
+    //either cord I or IV
+    if(b<0){
+      //cord IV
+      a = a + calcX();
+      b = b - calcY();
+      degree+=270
+    }
+    else{
+      a = a + calcX();
+      b = b - calcY();
+    }
+  }
+  if(d-currentD>180){
+    degree = degree-currentD-180;
+  }
+  else{
+    degree -= currentD;
+  }
+  currentD = d;
+  currentX = a;
+  currentY = b;
+  c = sqrt(pow(fabs(a),2)+pow(fabs(b),2));
+
+  if(r){
+    trn(d*-1);
+    currentD() = d * -1;
+    move(c*-1);
+  }
+  else{
+    trn(d);
+    move(c);
+  }
+  
+  while(seconds != 0|| Drivetrain.isMoving()){
+    wait(1, second);
+    seconds--; 
+  }
 } 
-
-
-
-
 int main() {
   // Initializing Robot Configuration. DO NOT REMOVE! 
   vexcodeInit();
-  // Begin project code
+  // Begin project code 
+  /*
   //flip the switch twice
-  cordMove(72,16,0);
-  cordMove(72,9.6);
-  cordMove(72,16,0);
-  cordMove(72,9.6);
-  cordMove(72,16,0);
+  Drivetrain.setDriveVelocity(50,percent);
+  cordMove(72,16,2,true);
+  cordMove(72,0,2,false);
+  cordMove(72,16,2,true);
+  cordMove(72,0,2,false); 
+  cordMove(72,16,2,true);
 
   //move to the input a pin
-  ChainNextCup(); 
-  cordMove(48,24);
-  claw.set(false);
+  Drivetrain.setDriveVelocity(75,percent);
+  ChainNextCup();
+  cordMove(48,24,2,false);
+  claw.set(false);  
 
   //gather two cups
 
   //gather pin one
+  Drivetrain.setDriveVelocity(50,percent);
   ChainBottom(1);
-  cordMove(54,24,0);
+  cordMove(54,24,2,true);
   intakeStart();
-  cordMove(48,48);
+  cordMove(48,48,2,false);
   claw.set(true);
   ChainReturn(1);
-  cordMove(48,24);
+  cordMove(48,24,2,false);
   intakeStop();
   ChainNextCup();
   claw.set(false);
 
   //gather pin two
   ChainBottom(1);
-  cordMove(24,24);
+  cordMove(24,24,2,false);
   claw.set(true);
   ChainReturn(1);
-  cordMove(48,24);
+  cordMove(48,24,2,false);
   ChainNextCup();
   claw.set(false);
   ChainBottom(1);
@@ -343,76 +288,80 @@ int main() {
   //gather pin from loader
   for(int x = 0; x > 6; x++){
     intakeStart();
-    cordMove(0,12);
+    cordMove(0,12,2,false);
     claw.set(true);
     intakeStop();
     ChainReturn(1);
-    cordMove(48,24);
+    cordMove(48,24,2,false);
     ChainNextCup();
     claw.set(false);
     ChainBottom();
   }
 
-  cordMove(12,48);
+  Drivetrain.setDriveVelocity(75,percent);
+  cordMove(12,48,2,false);
   intakeStart();
-  cordMove(0,48);
+  cordMove(0,48),2,false;
   claw.set(true);
   intakeStop();
-  cordMove(24,48);
+  cordMove(24,48,2,false);
   chainHeigth = 0;
   ChainNextCup();
   claw.set(false);
 
-
+  Drivetrain.setDriveVelocity(50,percent);
   //second gather pin from loader
   for(int x = 0; x > 7; x++){
     intakeStart();
-    cordMove(0,12);
+    cordMove(0,12,2,false);
     claw.set(true);
     intakeStop();
     ChainReturn(1);
-    cordMove(24,48);
+    cordMove(24,48,2,false);
     ChainNextCup();
     claw.set(false);
     ChainBottom();
-  }
-
+  } 
+ 
+  Drivetrain.setDriveVelocity(75,percent);
   //flip second switch twice
-  cordMove(24,72);
-  cordMove(0,72);
-  cordMove(12,72);
-  cordMove(0,72);
+  cordMove(24,72,2,false);
+  cordMove(0,72,2,false);
+  cordMove(12,72,2,false);
+  cordMove(0,72,2,false);
 
   //gather middle cone
   intakeStart();
-  cordMove(72,48);
+  cordMove(72,48,2,false);
   claw.set(true);
   intakeStop();
   chainHeigth = 0;
   ChainNextCup(1);
-  cordMove(72,72);
+  cordMove(72,72,2,false);
   claw.set(false);
   ChainBottom();
 
+  Drivetrain.setDriveVelocity(100,percent);
   //gather the other two yellow cone in the middle
-  cordMove(96,72);
+  cordMove(96,72,2,false);
   intakeStart();
-  cordMove(96,96);
+  cordMove(96,96,2,false);
   claw.set(true);
   intakeStop();
   ChainReturn();
-  cordMove(72,72);
+  cordMove(72,72,2,false);
   ChainNextCup();
   claw.set(false);
-
+      
   ChainBottom(1);
   intakeStart();
-  cordMove(120,120);
+  cordMove(120,120,2,false);
   claw.set(true);
   intakeStop();
   ChainReturn(1);
-  cordMove(72,72);
+  cordMove(72,72,2,false);
   ChainNextCup();
   claw.set(false); 
-  //we done :) :) :) :)
+  //we done :) :) :) :)    
+  */  
 }
