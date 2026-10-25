@@ -96,34 +96,40 @@ bool RemoteControlCodeEnabled = true;
 // Allows for easier use of the VEX Library
 using namespace vex;
 
-double currentX = 70.6; 
+//This is the length of the robot and creation of the current degrees and x/y position of the robot
+double currentX = 72; 
 double currentY = 8; //16 start //19 after
 double currentD = 0;
 double tempCurrentD=0;
 
+//calcX calcX creates the x vector(Position) based on the angle;
 double calcX(double degree){
-  degree = 9.5*sin(degree);
   degree *= 180;
-  return degree / M_PI;
+  degree = degree / M_PI;
+  return 9.5*sin(degree);
 
 }
  
+//calcY calcY creates the y vector based on the angles
 double calcY(double degree){
   degree =  9.5*cos(degree);
   degree *= 180;
   return degree / M_PI;
 }
 
+//move the robot and pause code until it is done
 void move(double x){
-  Drivetrain.driveFor(forward, 200, inches,true);
+  Drivetrain.driveFor(forward, x, inches,true);
 }
+
+//move the robot but don't pause code
 void move(double x, int y){
-  Drivetrain.driveFor(forward, 200, inches,false);
+  Drivetrain.driveFor(forward, x, inches,false);
 }
 
 void trn(double x){
   Drivetrain.turnFor(left, x,degrees,true);
-}
+} 
 
 void trn(double x,int y){
   Drivetrain.turnFor(left, x,degrees,false);
@@ -337,7 +343,7 @@ int main() {
     else{
       if(Controller1.ButtonX.pressing()){
         ChainNextCup(1);
-      } 
+      }   
       else if(Controller1.ButtonA.pressing()){
         ChainReturn(1);
       }
