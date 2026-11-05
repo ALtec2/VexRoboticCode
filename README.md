@@ -8,7 +8,7 @@ a description of the project, why you made it, and how to run/play it. This is t
   - This is a custom design code and alg for my teams robot
   - I made because my team is competing soon and I need to code it in like 8 weeks
 
-## HOW TO RUN
+## HOW TO RUN IT
 As this requires a robot to run there is no how to use.
 However if you do have a robot or a vexv5 brain and you want to test it heres how.
   - 1. How to use if you have a brain
@@ -18,6 +18,11 @@ However if you do have a robot or a vexv5 brain and you want to test it heres ho
   - 5. Input the code
   - 6. Then with your usb type c plug into your brain and other end to your computer
   - 7. Click run to see it working
+
+## HOW I MADE IT
+  - So basically I use the sublime for this and the v5 editor to check the code (I can't track hours on vex v5)
+  - It uses c++ because the other language Python, is less familiar to me
+  - I use basic logic to program the routine (just go there and open claw and stuff)
 
 ## Demo (yt)
 However if you want to see it run and since I can't show the robot there will also be a unlisted yt video here for your viewing pleasures!!!(It'll be me clicking run and the motors spinning)
