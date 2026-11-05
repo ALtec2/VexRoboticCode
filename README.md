@@ -1,11 +1,11 @@
 # VexRoboticCode
 
-a description of the project, why you made it, and how to run/play it. This is the first thing people see when they look at your project so make sure it reflects your effort! Some formatting would be nice instead of huge paragraphs of text, make it look fancy for readers :)!
-
-## What is it and why I made it
+## What is it
   - This is code for the VexV5 Competition "OverRide"
   - It has custom methods for a coordinate drive program
   - This is a custom design code and alg for my teams robot
+
+## Why I made it
   - I made because my team is competing soon and I need to code it in like 8 weeks
 
 ## HOW TO RUN IT
